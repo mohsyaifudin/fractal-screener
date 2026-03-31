@@ -2,6 +2,7 @@ from flask import Flask, render_template_string
 import yfinance as yf
 import pandas as pd
 from datetime import datetime
+import pytz
 
 app = Flask(__name__)
 
@@ -59,7 +60,10 @@ def home():
         res = cek_breakout(s)
         if res: results.append(res)
 
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # Tentukan timezone Jakarta (WIB)
+        timezone = pytz.timezone('Asia/Jakarta')
+        # Ambil waktu sekarang sesuai timezone tersebut
+        now = datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S WIB")
 
     html = """
     <!DOCTYPE html>
