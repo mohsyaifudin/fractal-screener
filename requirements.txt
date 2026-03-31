@@ -2,4 +2,4 @@ flask
 yfinance
 pandas
 pytz
-openpyxl
+
