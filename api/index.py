@@ -1,8 +1,9 @@
-from flask import Flask, render_template_string
+from flask import Flask, render_template_string, send_file, request
 import yfinance as yf
 import pandas as pd
 from datetime import datetime
 import pytz
+import io
 
 app = Flask(__name__)
 
@@ -145,6 +146,12 @@ def home():
                     </svg>
                     Simpan Hasil (JPEG)
                 </button>
+                <button onclick="downloadExcel()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-full font-bold shadow-lg transition-all transform hover:scale-105 flex items-center gap-2 ml-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V7.414A2 2 0 0015.414 6L12 2.586A2 2 0 0010.586 2H6zm5 6a1 1 0 10-2 0v3.586l-1.293-1.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V8z" clip-rule="evenodd" />
+                    </svg>
+                    Simpan Excel (.xlsx)
+                </button>
             </div>
         </div>
 
@@ -161,11 +168,54 @@ def home():
                     link.click();
                 });
             }
+            function downloadExcel() {
+                // Ambil data results dari Flask (menggunakan Jinja2 filter tojson)
+                const data = {{ results|tojson }};
+                if (data.length === 0) {
+                    alert("Tidak ada data untuk diunduh");
+                    return;
+                }
+                
+                // Kirim data ke route /download_excel melalui URL parameter
+                const jsonStr = JSON.stringify(data);
+                window.location.href = "/download_excel?data=" + encodeURIComponent(jsonStr);
+            }
         </script>
     </body>
     </html>
     """
     return render_template_string(html, results=results, timestamp=now)
+
+@app.route('/download_excel')
+def download_excel():
+    # Mengambil data dari parameter URL (dikirim dari frontend)
+    data_json = request.args.get('data')
+    import json
+    results = json.loads(data_json)
+    
+    if not results:
+        return "No data to download", 400
+
+    # Convert ke DataFrame
+    df = pd.DataFrame(results)
+    
+    # Beri nama kolom yang lebih rapi untuk Excel
+    df.columns = ['Ticker', 'Status', 'Price', 'Change (%)', 'Volume', 'Up Fractal']
+
+    # Simpan ke memory buffer (agar tidak perlu simpan file fisik di server Vercel)
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Screening_Results')
+    output.seek(0)
+
+    # Nama file sesuai waktu sekarang (WIB)
+    tz = pytz.timezone('Asia/Jakarta')
+    filename = datetime.now(tz).strftime("Screening_%Y-%m-%d_%H%M%S.xlsx")
+
+    return send_file(output, 
+                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+                     as_attachment=True, 
+                     download_name=filename)
 
 if __name__ == '__main__':
     app.run(debug=True)
