@@ -62,9 +62,9 @@ def home():
         if res: results.append(res)
 
         # Tentukan timezone Jakarta (WIB)
-        timezone = pytz.timezone('Asia/Jakarta')
+    timezone = pytz.timezone('Asia/Jakarta')
         # Ambil waktu sekarang sesuai timezone tersebut
-        now = datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S WIB")
+    now = datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S WIB")
 
     html = """
     <!DOCTYPE html>
