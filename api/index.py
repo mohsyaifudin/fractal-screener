@@ -60,10 +60,10 @@ def home():
         res = cek_breakout(s)
         if res: results.append(res)
 
-        # Tentukan timezone Jakarta (WIB)
-        timezone = pytz.timezone('Asia/Jakarta')
-        # Ambil waktu sekarang sesuai timezone tersebut
-        now = datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S WIB")
+    # Tentukan timezone Jakarta (WIB)
+    timezone = pytz.timezone('Asia/Jakarta')
+    # Ambil waktu sekarang sesuai timezone tersebut
+    now = datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S WIB")
 
     html = """
     <!DOCTYPE html>
@@ -108,7 +108,13 @@ def home():
                         <tbody class="divide-y divide-gray-200">
                             {% for r in results %}
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 font-bold text-gray-900">{{ r.simbol }}</td>
+                                <td class="px-6 py-4 font-bold text-gray-900">
+                                    <a href="https://www.tradingview.com/chart/?symbol=IDX%3A{{ r.simbol }}"
+                                       target="_blank" rel="noopener noreferrer"
+                                       class="text-blue-600 hover:text-blue-800 hover:underline">
+                                        {{ r.simbol }}
+                                    </a>
+                                </td>
                                 <td class="px-6 py-4">
                                     <span class="px-3 py-1 rounded-full text-xs font-bold {{ 'bg-green-100 text-green-700' if r.status == 'CLOSE ABOVE' else 'bg-yellow-100 text-yellow-700' }}">
                                         {{ r.status }}
