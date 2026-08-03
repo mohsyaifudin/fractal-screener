@@ -16,57 +16,53 @@ def get_fractal_resistance(df):
             return df['High'].iloc[i]
     return None
 
+def cek_breakout(simbol):
+    try:
+        ticker = yf.Ticker(simbol)
+        # Ambil data lebih sedikit untuk efisiensi (1mo cukup)
+        df = ticker.history(period="1mo", interval="1d")
+        if df.empty or len(df) < 6: return None
+        
+        resistance = get_fractal_resistance(df)
+        if resistance is None: return None
+        
+        high_hari_ini = df['High'].iloc[-1]
+        close_hari_ini = df['Close'].iloc[-1]
+        close_kemarin = df['Close'].iloc[-2]
+        volume_hari_ini = df['Volume'].iloc[-1]
+        high_kemarin = df['High'].iloc[-2]
+
+        # Hitung % Perubahan Harga vs Closing Kemarin
+        change_pct = ((close_hari_ini - close_kemarin) / close_kemarin) * 100
+
+        if high_hari_ini > resistance and high_kemarin <= resistance:
+            if volume_hari_ini > 5000000:
+                status = "CLOSE ABOVE" if close_hari_ini > resistance else "HIGH ONLY"
+                return {
+                    "simbol": simbol.replace('.JK', ''), 
+                    "status": status, 
+                    "price": close_hari_ini,
+                    "change": change_pct,
+                    "vol": volume_hari_ini, 
+                    "res": resistance
+                }
+        return None
+    except Exception as e:
+        return None
+
 @app.route('/')
 def home():
-    # Daftar saham untuk pengujian (ringan)
-    saham_pilihan = ['RANS.JK', 'BACH.JK', 'JECX.JK', 'EMMI.JK', 'NCKL.JK']
+    # Contoh list diperpendek (Gunakan list lengkap Anda di sini)
+    saham_pilihan = ['RANS.JK', 'BACH.JK', 'JECX.JK', 'EMMI.JK', 'PRDL.JK', 'JELI.JK', 'WBSA.JK', 'AALI.JK', 'ABBA.JK', 'ABDA.JK', 'ABMM.JK', 'NCKL.JK'] 
     
     results = []
-    
-    try:
-        # Mengambil data secara bersamaan (batch) agar cepat & tidak timeout di Vercel
-        data = yf.download(saham_pilihan, period="1mo", interval="1d", group_by='ticker', threads=True)
-    except Exception:
-        data = None
-
-    if data is not None and not data.empty:
-        for s in saham_pilihan:
-            try:
-                # Ambil DataFrame per ticker
-                if len(saham_pilihan) > 1:
-                    df = data[s].dropna()
-                else:
-                    df = data.dropna()
-                
-                if len(df) < 6: continue
-                
-                resistance = get_fractal_resistance(df)
-                if resistance is None: continue
-                
-                high_hari_ini = df['High'].iloc[-1]
-                close_hari_ini = df['Close'].iloc[-1]
-                close_kemarin = df['Close'].iloc[-2]
-                volume_hari_ini = df['Volume'].iloc[-1]
-                high_kemarin = df['High'].iloc[-2]
-
-                change_pct = ((close_hari_ini - close_kemarin) / close_kemarin) * 100
-
-                if high_hari_ini > resistance and high_kemarin <= resistance:
-                    if volume_hari_ini > 5000000:
-                        status = "CLOSE ABOVE" if close_hari_ini > resistance else "HIGH ONLY"
-                        results.append({
-                            "simbol": s.replace('.JK', ''), 
-                            "status": status, 
-                            "price": close_hari_ini,
-                            "change": change_pct,
-                            "vol": volume_hari_ini, 
-                            "res": resistance
-                        })
-            except Exception:
-                continue
+    for s in saham_pilihan:
+        res = cek_breakout(s)
+        if res: results.append(res)
 
     # Tentukan timezone Jakarta (WIB)
     timezone = pytz.timezone('Asia/Jakarta')
+    # Ambil waktu sekarang sesuai timezone tersebut
     now = datetime.now(timezone).strftime("%Y-%m-%d %H:%M:%S WIB")
 
     html = """
@@ -112,23 +108,19 @@ def home():
                         <tbody class="divide-y divide-gray-200">
                             {% for r in results %}
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 font-bold text-gray-900">
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-gray-900 text-base mb-1">{{ r.simbol }}</div>
                                     <div class="flex items-center gap-2">
-                                        <span>{{ r.simbol }}</span>
-                                        <div class="inline-flex gap-1">
-                                            <a href="https://www.tradingview.com/chart/?symbol=IDX%3A{{ r.simbol }}"
-                                               target="_blank" rel="noopener noreferrer"
-                                               title="Buka di TradingView"
-                                               class="px-2 py-0.5 text-xs font-semibold rounded bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">
-                                                TV
-                                            </a>
-                                            <a href="https://stockbit.com/symbol/{{ r.simbol }}/chartbit"
-                                               target="_blank" rel="noopener noreferrer"
-                                               title="Buka di Stockbit"
-                                               class="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors">
-                                                SB
-                                            </a>
-                                        </div>
+                                        <a href="https://www.tradingview.com/chart/?symbol=IDX%3A{{ r.simbol }}"
+                                           target="_blank" rel="noopener noreferrer"
+                                           class="text-[10px] font-bold px-2 py-1 bg-blue-50 text-blue-600 border border-blue-200 rounded hover:bg-blue-100 transition-colors">
+                                            TradingView
+                                        </a>
+                                        <a href="https://stockbit.com/symbol/{{ r.simbol }}/chartbit"
+                                           target="_blank" rel="noopener noreferrer"
+                                           class="text-[10px] font-bold px-2 py-1 bg-green-50 text-green-600 border border-green-200 rounded hover:bg-green-100 transition-colors">
+                                            Stockbit
+                                        </a>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4">
@@ -174,7 +166,7 @@ def home():
             function downloadImage() {
                 const element = document.getElementById('capture-area');
                 html2canvas(element, {
-                    scale: 2,
+                    scale: 2, // Kualitas lebih tinggi
                     backgroundColor: "#f3f4f6"
                 }).then(canvas => {
                     const link = document.createElement('a');
