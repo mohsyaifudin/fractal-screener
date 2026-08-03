@@ -108,47 +108,13 @@ def home():
                         <tbody class="divide-y divide-gray-200">
                             {% for r in results %}
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 font-bold relative">
-
-    <div class="inline-block relative group">
-
-        <button
-            class="text-blue-600 hover:text-blue-800 hover:underline font-bold flex items-center gap-1">
-            {{ r.simbol }}
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 class="w-4 h-4"
-                 fill="none"
-                 viewBox="0 0 24 24"
-                 stroke="currentColor">
-                <path stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M19 9l-7 7-7-7"/>
-            </svg>
-        </button>
-
-        <div
-            class="absolute left-0 mt-1 hidden group-hover:block bg-white border rounded-lg shadow-lg z-50 w-44">
-
-            <a href="https://www.tradingview.com/chart/?symbol=IDX%3A{{ r.simbol }}"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="block px-4 py-2 hover:bg-blue-50">
-                📈 TradingView
-            </a>
-
-            <a href="https://stockbit.com/symbol/{{ r.simbol }}/chartbit"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="block px-4 py-2 hover:bg-blue-50">
-                📊 Stockbit
-            </a>
-
-        </div>
-
-    </div>
-
-</td>
+                                <td class="px-6 py-4 font-bold text-gray-900">
+                                    <a href="https://www.tradingview.com/chart/?symbol=IDX%3A{{ r.simbol }}"
+                                       target="_blank" rel="noopener noreferrer"
+                                       class="text-blue-600 hover:text-blue-800 hover:underline">
+                                        {{ r.simbol }}
+                                    </a>
+                                </td>
                                 <td class="px-6 py-4">
                                     <span class="px-3 py-1 rounded-full text-xs font-bold {{ 'bg-green-100 text-green-700' if r.status == 'CLOSE ABOVE' else 'bg-yellow-100 text-yellow-700' }}">
                                         {{ r.status }}
