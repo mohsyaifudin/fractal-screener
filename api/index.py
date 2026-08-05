@@ -109,23 +109,11 @@ def home():
                             {% for r in results %}
                             <tr class="hover:bg-gray-50 transition-colors">
                                 <td class="px-6 py-4 font-bold text-gray-900">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-gray-900">{{ r.simbol }}</span>
-                                        <div class="flex gap-1 text-xs">
-                                            <a href="https://www.tradingview.com/chart/?symbol=IDX%3A{{ r.simbol }}"
-                                               target="_blank" rel="noopener noreferrer"
-                                               class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 py-0.5 rounded border border-blue-200 font-semibold"
-                                               title="Buka di TradingView">
-                                                TV
-                                            </a>
-                                            <a href="https://stockbit.com/symbol/{{ r.simbol }}/chartbit"
-                                               target="_blank" rel="noopener noreferrer"
-                                               class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200 font-semibold"
-                                               title="Buka di Stockbit Chartbit">
-                                                SB
-                                            </a>
-                                        </div>
-                                    </div>
+                                    <a href="https://www.tradingview.com/chart/?symbol=IDX%3A{{ r.simbol }}"
+                                       target="_blank" rel="noopener noreferrer"
+                                       class="text-blue-600 hover:text-blue-800 hover:underline">
+                                        {{ r.simbol }}
+                                    </a>
                                 </td>
                                 <td class="px-6 py-4">
                                     <span class="px-3 py-1 rounded-full text-xs font-bold {{ 'bg-green-100 text-green-700' if r.status == 'CLOSE ABOVE' else 'bg-yellow-100 text-yellow-700' }}">
