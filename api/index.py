@@ -108,31 +108,25 @@ def home():
                         <tbody class="divide-y divide-gray-200">
                             {% for r in results %}
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 font-bold text-gray-900 relative">
-    <details class="inline-block">
-        <summary class="cursor-pointer text-blue-600 hover:text-blue-800 hover:underline list-none">
-            {{ r.simbol }}
-        </summary>
-
-        <div class="absolute mt-2 w-44 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-
-            <a href="https://www.tradingview.com/chart/tT7dn762/?symbol=IDX%3A{{ r.simbol }}"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="block px-4 py-2 hover:bg-blue-50">
-                📈 TradingView
-            </a>
-
-            <a href="https://stockbit.com/symbol/{{ r.simbol }}/chartbit"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="block px-4 py-2 hover:bg-green-50">
-                📊 Stockbit
-            </a>
-
-        </div>
-    </details>
-</td>
+                                <td class="px-6 py-4 font-bold text-gray-900">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-gray-900">{{ r.simbol }}</span>
+                                        <div class="flex gap-1 text-xs">
+                                            <a href="https://www.tradingview.com/chart/?symbol=IDX%3A{{ r.simbol }}"
+                                               target="_blank" rel="noopener noreferrer"
+                                               class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 py-0.5 rounded border border-blue-200 font-semibold"
+                                               title="Buka di TradingView">
+                                                TV
+                                            </a>
+                                            <a href="https://stockbit.com/symbol/{{ r.simbol }}/chartbit"
+                                               target="_blank" rel="noopener noreferrer"
+                                               class="bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200 font-semibold"
+                                               title="Buka di Stockbit Chartbit">
+                                                SB
+                                            </a>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td class="px-6 py-4">
                                     <span class="px-3 py-1 rounded-full text-xs font-bold {{ 'bg-green-100 text-green-700' if r.status == 'CLOSE ABOVE' else 'bg-yellow-100 text-yellow-700' }}">
                                         {{ r.status }}
